@@ -1,9 +1,11 @@
 use termion::event::Key;
 
 use crate::Terminal;
+use crate::Document;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
+#[derive(Default)]
 pub struct Position {
     pub x: usize,
     pub y: usize,
@@ -12,7 +14,8 @@ pub struct Position {
 pub struct Editor {
     should_quit: bool,
     terminal: Terminal,
-    current_position: Position
+    current_position: Position,
+    document: Document,
 }
 
 impl Editor {
@@ -20,7 +23,8 @@ impl Editor {
         Self {
             should_quit: false,
             terminal: Terminal::default().expect("Failed to initialize terminal"),
-            current_position: Position { x: 0, y: 0 }
+            current_position: Position::default(),
+            document: Document::default(),
         }
     }
 
@@ -42,9 +46,9 @@ impl Editor {
     fn process_keypress(&mut self) -> Result<(), std::io::Error> {
         let pressed_key = Terminal::read_key()?;
         match pressed_key {
-            Key::Ctrl('q') => self.should_quit = true,
-            Key::Esc => self.should_quit = true,
+            Key::Ctrl('q') | Key::Esc => self.should_quit = true,
             Key::Up
+            | Key::Char('h' | 'j' | 'k' | 'l')
             | Key::Down
             | Key::Left
             | Key::Right
@@ -73,14 +77,14 @@ impl Editor {
         let height = self.terminal.size().height as usize;
         let width = self.terminal.size().width as usize;
         match key {
-            Key::Up => y = y.saturating_sub(1),
-            Key::Down => {
+            Key::Up | Key::Char('k') => y = y.saturating_sub(1),
+            Key::Down | Key::Char('j') => {
                 if y < height {
                     y = y.saturating_add(1);
                 }
-            }
-            Key::Left => x = x.saturating_sub(1),
-            Key::Right => {
+            },
+            Key::Left | Key::Char('h')=> x = x.saturating_sub(1),
+            Key::Right | Key::Char('l') => {
                 if x < width {
                     x = x.saturating_add(1);
                 }
