@@ -226,7 +226,7 @@ impl Editor {
     }
 
     fn draw_welcome_message(&self) {
-        let mut welcome_message = format!("Tedtr -- version {}", VERSION);
+        let mut welcome_message = format!("Tedtr -- version {} - dthtien", VERSION);
         let width = self.terminal.size().width as usize;
         let len = welcome_message.len();
         #[allow(clippy::arithmetic_side_effects, clippy::integer_division)]
